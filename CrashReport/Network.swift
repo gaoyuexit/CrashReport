@@ -55,12 +55,12 @@ class Network {
         }.resume()
     }
     
-    
     private func encode(method: Method, _ urlStr: String, parameters: Parameters? = nil) -> URLRequest? {
         
         guard let url = URL(string: urlStr) else { return nil }
         var urlRequest = URLRequest(url: url)
         urlRequest.allHTTPHeaderFields = headers
+        urlRequest.httpMethod = method.rawValue
         switch method {
         case .GET:
             var urlString = urlStr
@@ -75,8 +75,6 @@ class Network {
         }
         return urlRequest
     }
-    
-    
     
     
     private func query(_ parameters: [String: Any]) -> String {

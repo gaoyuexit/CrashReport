@@ -7,51 +7,78 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 /*============================  crash handle  ===================================*/
 
 func exceptionHandler(exception: NSException) {
     
+    print("----- exceptionHandler ------")
+    print(LPCrashReport.crashPath)
+    readFromLocal()
+    
     let crash = Crash(type: CrashType.exception.rawValue,
                       name: exception.name.rawValue,
                       reason: exception.reason ?? "",
-                      appInfo: AppInfo().description,
                       callStack: exception.callStackSymbols.joined(separator: "\r"),
-                      date: Date().formatTimeYMDHMS())
-    let dict = crash.encode()
-    dict.write(toFile: LPCrashReport.crashPath + "/" + crash.date + ".plist", atomically: true)
+                      date: Date().timeIntervalSince1970.description)
+    writeToLocal(crash)
 }
 
 func handleSignal(signal: Int32) {
     
+    readFromLocal()
     let crash = Crash(type: CrashType.signal.rawValue,
                       name: signal.signalName,
                       reason: signal.signalName,
-                      appInfo: AppInfo().description,
                       callStack: Thread.callStackSymbols.joined(separator: "\r"),
-                      date: Date().formatTimeYMDHMS())
-    let dict = crash.encode()
-    dict.write(toFile: LPCrashReport.crashPath + "/" + crash.date + ".plist", atomically: true)
+                      date: Date().timeIntervalSince1970.description)
+    writeToLocal(crash)
 }
 
+func writeToLocal(_ crash: Crash?) {
+    //如果一打开就崩溃了, 启动时间和终止时间相同
+    if LPCrashReport.time.start == nil { LPCrashReport.time.start = Date().timeIntervalSince1970.description }
+    LPCrashReport.time.end = Date().timeIntervalSince1970.description
+    let report = Report(appInfo: AppInfo(), crash: crash, time: LPCrashReport.time, warnings: LPCrashReport.warnings)
+    LPCrashReport.reports.add(report.decode())
+    LPCrashReport.reports.write(toFile: LPCrashReport.crashPath, atomically: true)
+    
+    LPCrashReport.reports = NSMutableArray()
+    LPCrashReport.time = Time()
+    LPCrashReport.warnings.removeAll()
+}
+
+func readFromLocal() {
+    if let array = NSMutableArray(contentsOfFile: LPCrashReport.crashPath) {
+        LPCrashReport.reports = array
+    }
+}
 
 /*============================  LPCrashReport  ===================================*/
 class LPCrashReport {
-    
-    static let crashPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/Crash"
 
-    init() {
-        FileTool.creatDirectory(path: LPCrashReport.crashPath)
-        register()
-        NotificationCenter.default.addObserver(self, selector: #selector(enterForeground), name: .UIApplicationWillEnterForeground, object: nil)
+    static let shared = LPCrashReport()
+    
+    static let crashPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/reports.plist"
+
+    static var reports = NSMutableArray()
+    static var time = Time()
+    static var warnings = [MemoryWarning]()
+    
+    private init() {
+        registerCrash()
+        NotificationCenter.default.addObserver(self, selector: #selector(becomeActive), name: .UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(resignActive), name: .UIApplicationWillResignActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(receiveMemoryWarning), name: .UIApplicationDidReceiveMemoryWarning, object: nil)
     }
     
     deinit {
-        unregister()
+        unregisterCrash()
         NotificationCenter.default.removeObserver(self)
     }
     
-    func register() {
+    func registerCrash() {
         NSSetUncaughtExceptionHandler(exceptionHandler)
         signal(SIGILL, handleSignal)
         signal(SIGABRT, handleSignal)
@@ -63,7 +90,7 @@ class LPCrashReport {
         signal(SIGTRAP, handleSignal)
     }
     
-    func unregister() {
+    func unregisterCrash() {
         NSSetUncaughtExceptionHandler(nil)
         signal(SIGILL, SIG_DFL)
         signal(SIGABRT, SIG_DFL)
@@ -75,19 +102,54 @@ class LPCrashReport {
         signal(SIGTRAP, SIG_DFL)
     }
     
-    @objc func enterForeground() {
-        guard let subPaths = FileTool.allFiles(in: LPCrashReport.crashPath) else { return }
-        // 遍历子路径发送请求, 成功后删除
-        for subPath in subPaths {
-            guard let nsDict = NSDictionary(contentsOfFile: subPath),
-                  let dict = nsDict as? Dictionary<String, String>,
-                  let crash = Crash(decode: dict) else { continue }
-            Network.shared.request(method: .GET, urlStr: "https://www.baidu.com", success: { (result) in
-                print(result.response)
-                FileTool.remove(at: subPath)
-            }, fail: { (result) in
-                print(result.response)
-            })
+    @objc func becomeActive() {
+        
+        print("----- becomeActive ------")
+        print(LPCrashReport.crashPath)
+        
+        LPCrashReport.time.start = Date().timeIntervalSince1970.description
+        readFromLocal()
+        uploadData()
+    }
+    
+    /// 后台 记录end时间
+    @objc func resignActive() {
+        print("----- resignActive ------")
+        writeToLocal(nil)
+    }
+    
+    /// 接收到内存警告
+    @objc func receiveMemoryWarning() {
+        let warning = MemoryWarning(date: Date().timeIntervalSince1970.description,
+                                    totalMemory: UIDevice.current.lp.totalMemory().description,
+                                    useMemory: UIDevice.current.lp.userMemory().description)
+        LPCrashReport.warnings.append(warning)
+    }
+    
+    func uploadData() {
+        guard LPCrashReport.reports.count != 0 else { return }
+        
+        
+        //let json = JSON(LPCrashReport.reports)
+        
+        let param = ["kw": "爱", "pi": "1", "pz": "10"]
+        
+        Network.shared.request(method: .GET, urlStr: "http://v5.pc.duomi.com/search-ajaxsearch-searchall", parameter: param, success: { (result) in
+            //http://v5.pc.duomi.com/search-ajaxsearch-searchall?kw=爱&pi=1&pz=10
+            print(JSON(data: result.data!))
+            
+            
+            guard UIApplication.shared.applicationState == .background,
+                  let last = LPCrashReport.reports.lastObject as? NSDictionary else{
+                LPCrashReport.reports.removeAllObjects()
+                return
+            }
+            LPCrashReport.reports.removeAllObjects()
+            LPCrashReport.reports.add(last)
+            LPCrashReport.reports.write(toFile: LPCrashReport.crashPath, atomically: true)
+            
+        }) { (result) in
+            print(result.error ?? "")
         }
     }
     

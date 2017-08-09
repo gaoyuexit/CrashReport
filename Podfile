@@ -7,6 +7,7 @@ target 'CrashReport' do
 
 
 pod 'LPExtensions', :git => 'git@bitbucket.org:loopeer/lpextensions.git', :commit => 'f6a7d0d'
+pod 'SwiftyJSON', '~> 3.1.4'
 
 
 

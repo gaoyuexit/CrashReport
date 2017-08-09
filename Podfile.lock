@@ -4,9 +4,11 @@ PODS:
     - LPExtensions/UINavigationBar (= 0.0.1)
   - LPExtensions/String (0.0.1)
   - LPExtensions/UINavigationBar (0.0.1)
+  - SwiftyJSON (3.1.4)
 
 DEPENDENCIES:
   - LPExtensions (from `git@bitbucket.org:loopeer/lpextensions.git`, commit `f6a7d0d`)
+  - SwiftyJSON (~> 3.1.4)
 
 EXTERNAL SOURCES:
   LPExtensions:
@@ -20,7 +22,8 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   LPExtensions: de336d08b3b57b638fba837eb75f654ab936f11d
+  SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
 
-PODFILE CHECKSUM: 827bbe7044b5db6ff1450978fec3ea0058948c50
+PODFILE CHECKSUM: 78e1024d20a973694dd56a939de06f791b1c9800
 
 COCOAPODS: 1.2.1

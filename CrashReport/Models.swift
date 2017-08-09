@@ -8,8 +8,10 @@
 
 import Foundation
 import LPExtensions
+import SwiftyJSON
 
 struct AppInfo: CustomStringConvertible {
+    
     var version = String.projectVersion //eg: 2.0.0
     var deviceID = UIDevice.current.identifierForVendor!.uuidString
     var platform = UIDevice.current.lp.platformString() //eg: iphone 7plus
@@ -19,6 +21,9 @@ struct AppInfo: CustomStringConvertible {
     var description: String {
         return "app: \(appName)\n" + "version: \(version)\n" + "deviceID: \(deviceID)\n" + "platform: \(platform)\n" + "system: \(system)"
     }
+    func encode() -> NSDictionary {
+        return ["version": version, "deviceID": deviceID, "platform": platform, "system": system, "appName": appName]
+    }
 }
 
 enum CrashType: String {
@@ -26,67 +31,69 @@ enum CrashType: String {
     case exception = "Exception"
 }
 
-
 struct Report {
+    let appInfo: AppInfo
     let crash: Crash?
-    let Time: Time
-    let warning: [MemoryWarning]?
+    let time: Time
+    let warnings: [MemoryWarning]
+    
+    func decode() -> NSDictionary {
+        var array = [String: Any]()
+        array["appInfo"] = appInfo.encode()
+        array["crash"] = crash?.encode() ?? [:]
+        array["time"] = time.encode()
+        array["warnings"] = warnings.map{ $0.encode() }
+        return array as NSDictionary
+    }
 }
 
 struct Crash {
+    
     let type: String
     let name: String
     let reason: String
-    let appInfo: String
     let callStack: String
     let date: String
     
-    init(type: String, name: String, reason: String, appInfo: String, callStack: String, date: String) {
+    init(type: String, name: String, reason: String, callStack: String, date: String) {
         self.type = type
         self.name = name
         self.reason = reason
-        self.appInfo = appInfo
         self.callStack = callStack
         self.date = date
     }
     
     func encode() -> NSDictionary {
-        return ["type": type, "name": name, "reason": reason, "date": date, "appInfo": appInfo, "callStack": callStack]
+        return ["type": type, "name": name, "reason": reason, "date": date, "callStack": callStack]
     }
     
     init?(decode: Dictionary<String, String>) {
         guard let type = decode["type"],
               let name = decode["name"],
               let reason = decode["reason"],
-              let appInfo = decode["appInfo"],
               let callStack = decode["callStack"],
               let date = decode["date"] else { return nil }
-        self.init(type: type, name: name, reason: reason, appInfo: appInfo, callStack: callStack, date: date)
+        self.init(type: type, name: name, reason: reason, callStack: callStack, date: date)
     }
 }
 
 struct Time {
+    
     var start: String?
     var end: String?
-    var warning: MemoryWarning?
     
-    init(start: String? = nil, end: String? = nil, warning: MemoryWarning? = nil) {
+    init(start: String? = nil, end: String? = nil) {
         self.start = start
         self.end = end
-        self.warning = warning
     }
     
     func encode() -> NSDictionary {
-        let timeDict = ["start": start ?? "", "end": end ?? ""]
-        guard let warning = warning else { return timeDict as NSDictionary }
-        let warnDict = warning.encode()
-        return (timeDict + warnDict) as NSDictionary
+        return ["start": start ?? "", "end": end ?? ""]
     }
     
     init(decode: Dictionary<String, String>) {
-        self.init(start: decode["start"], end: decode["end"], warning: MemoryWarning(decode: decode))
+        self.init(start: decode["start"], end: decode["end"])
     }
-    
 }
 
 struct MemoryWarning {

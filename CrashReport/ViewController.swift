@@ -14,7 +14,6 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
     
-        let _ = LPReport.shared
         
 //        let array = NSArray()
 //        array[2]

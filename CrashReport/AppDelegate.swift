@@ -17,36 +17,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
-        
-        
-        print("totalMemory: \(UIDevice.current.lp.totalMemory() / 1000 / 1000)")
-        print("userMemory: \(UIDevice.current.lp.userMemory() / 1000 / 1000)")
-        print("totalDiskSpace: \(UIDevice.current.lp.totalDiskSpace() as! UInt64 / 1000 / 1000)")
-        print("freeDiskSpace: \(UIDevice.current.lp.freeDiskSpace() as! UInt64 / 1000 / 1000)")
-        print("platformString: \(UIDevice.current.lp.platformString())")
-        print("deviceFamily: \(UIDevice.current.lp.deviceFamily())")
+        let _ = LPCrashReport.shared
 
         return true
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
-      
+      print("..applicationWillResignActive..")
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        
+        print("..applicationDidEnterBackground..")
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
- 
+        print("..applicationWillEnterForeground..")
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-       
+        print("..applicationDidBecomeActive..")
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
-      
+        print("..applicationWillTerminate..")
     }
 
 
