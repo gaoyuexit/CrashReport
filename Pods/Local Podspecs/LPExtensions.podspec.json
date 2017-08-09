@@ -1,0 +1,39 @@
+{
+  "name": "LPExtensions",
+  "version": "0.0.1",
+  "summary": "Loopeer Extensions Library",
+  "homepage": "https://bitbucket.org/loopeer/lpextensions",
+  "authors": {
+    "guozhiqiang": "guozhiqiang@loopeer.com"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source": {
+    "git": "https://bitbucket.org/loopeer/lpextensions.git",
+    "tag": "0.0.1"
+  },
+  "source_files": [
+    "Sources/*.swift",
+    "Sources/LPExtensions.h"
+  ],
+  "preserve_paths": "Sources/modules/CommonCrypto/**/*",
+  "pod_target_xcconfig": {
+    "SWIFT_INCLUDE_PATHS[sdk=iphoneos*]": "$(PODS_ROOT)/LPExtensions/Sources/modules/CommonCrypto/iphoneos",
+    "SWIFT_INCLUDE_PATHS[sdk=iphonesimulator*]": "$(PODS_ROOT)/LPExtensions/Sources/modules/CommonCrypto/iphonesimulator"
+  },
+  "public_header_files": [
+    "Sources/LPExtensions.h"
+  ],
+  "requires_arc": true,
+  "subspecs": [
+    {
+      "name": "String",
+      "source_files": "Sources/UIKit/*.swift"
+    },
+    {
+      "name": "UINavigationBar",
+      "source_files": "Sources/Namespace/*.swift"
+    }
+  ]
+}

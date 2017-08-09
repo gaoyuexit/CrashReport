@@ -1,0 +1,6 @@
+framework module Pods_CrashReport {
+  umbrella header "Pods-CrashReport-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,26 @@
+PODS:
+  - LPExtensions (0.0.1):
+    - LPExtensions/String (= 0.0.1)
+    - LPExtensions/UINavigationBar (= 0.0.1)
+  - LPExtensions/String (0.0.1)
+  - LPExtensions/UINavigationBar (0.0.1)
+
+DEPENDENCIES:
+  - LPExtensions (from `git@bitbucket.org:loopeer/lpextensions.git`, commit `f6a7d0d`)
+
+EXTERNAL SOURCES:
+  LPExtensions:
+    :commit: f6a7d0d
+    :git: git@bitbucket.org:loopeer/lpextensions.git
+
+CHECKOUT OPTIONS:
+  LPExtensions:
+    :commit: f6a7d0d
+    :git: git@bitbucket.org:loopeer/lpextensions.git
+
+SPEC CHECKSUMS:
+  LPExtensions: de336d08b3b57b638fba837eb75f654ab936f11d
+
+PODFILE CHECKSUM: 827bbe7044b5db6ff1450978fec3ea0058948c50
+
+COCOAPODS: 1.2.1
