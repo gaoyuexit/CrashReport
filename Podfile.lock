@@ -7,23 +7,23 @@ PODS:
   - SwiftyJSON (3.1.4)
 
 DEPENDENCIES:
-  - LPExtensions (from `git@bitbucket.org:loopeer/lpextensions.git`, commit `f6a7d0d`)
+  - LPExtensions (from `git@bitbucket.org:loopeer/lpextensions.git`, commit `64e67be`)
   - SwiftyJSON (~> 3.1.4)
 
 EXTERNAL SOURCES:
   LPExtensions:
-    :commit: f6a7d0d
+    :commit: 64e67be
     :git: git@bitbucket.org:loopeer/lpextensions.git
 
 CHECKOUT OPTIONS:
   LPExtensions:
-    :commit: f6a7d0d
+    :commit: 64e67be
     :git: git@bitbucket.org:loopeer/lpextensions.git
 
 SPEC CHECKSUMS:
   LPExtensions: de336d08b3b57b638fba837eb75f654ab936f11d
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
 
-PODFILE CHECKSUM: 78e1024d20a973694dd56a939de06f791b1c9800
+PODFILE CHECKSUM: cff611899a5d156b7bb3dd267ec3d206336d6c9d
 
 COCOAPODS: 1.2.1

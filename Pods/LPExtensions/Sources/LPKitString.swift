@@ -189,13 +189,21 @@ public extension String {
         return regExPredicate.evaluate(with: lowercased())
     }
 
-    
-    ///项目版本号
-    static var projectVersion: String {
-        return "\(Bundle.main.infoDictionary!["CFBundleShortVersionString"]!)"
+    enum App: String {
+        case version = "CFBundleShortVersionString" //版本号
+        case build = "CFBundleVersion"              //build号
+        case displayName = "CFBundleDisplayName"    //名字
+        case bundleID = "CFBundleIdentifier"        //bundleID
+        case uuid                                   //uuid
     }
-    ///项目名称
-    static var projectName: String {
-        return Bundle.main.infoDictionary!["CFBundleDisplayName"] as! String
+    
+    static func appInfo(_ type: App) -> String {
+        
+        switch type {
+        case .version, .build, .displayName, .bundleID:
+            return "\(Bundle.main.infoDictionary?[type.rawValue] ?? "")"
+        case .uuid:
+            return (UIDevice.current.identifierForVendor?.uuidString ?? "")
+        }
     }
 }

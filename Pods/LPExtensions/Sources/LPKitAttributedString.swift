@@ -1,12 +1,12 @@
 //
-//  LPKitAttributedString.swift
-//  LPExtensions
+//  AttributedStringWrapper.swift
+//  AttributedStringWrapper
 //
-//  Created by 郜宇 on 2017/6/8.
-//  Copyright © 2017年 Guo Zhiqiang. All rights reserved.
+//  Created by 郜宇 on 2017/6/13.
+//  Copyright © 2017年 Loopeer. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 public extension String {
     var toAttributed: AttributedStringWrapper {
@@ -40,39 +40,40 @@ public extension AttributedStringWrapper {
         let paragraphStyle = NSMutableParagraphStyle()
         setup(paragraphStyle)
         rawValue.addAttributes([NSParagraphStyleAttributeName: paragraphStyle],
-                      range: range ?? allRange)
+                               range: range ?? allRange)
         return self
     }
     
     /// NSForegroundColorAttributeName(字体颜色)
     @discardableResult
-    func foregroundColor(color: UIColor, range: NSRange? = nil) -> AttributedStringWrapper {
+    func foregroundColor(_ color: UIColor, range: NSRange? = nil) -> AttributedStringWrapper {
         rawValue.addAttributes([NSForegroundColorAttributeName: color],
-                      range: range ?? allRange)
+                               range: range ?? allRange)
         return self
     }
     
     /// NSFontAttributeName(字体)
     @discardableResult
-    func font(font: UIFont, range: NSRange? = nil) -> AttributedStringWrapper {
+    func font(_ font: UIFont, range: NSRange? = nil) -> AttributedStringWrapper {
         rawValue.addAttributes([NSFontAttributeName: font],
-                      range: range ?? allRange)
+                               range: range ?? allRange)
         return self
     }
     /// NSBackgroundColorAttributeName(字体背景色)
     @discardableResult
-    func backgroundColor(color: UIColor, range: NSRange? = nil) -> AttributedStringWrapper {
+    func backgroundColor(_ color: UIColor, range: NSRange? = nil) -> AttributedStringWrapper {
         rawValue.addAttributes([NSBackgroundColorAttributeName: color],
-                      range: range ?? allRange)
+                               range: range ?? allRange)
         return self
     }
-
+    
     /// NSStrikethroughStyleAttributeName(删除线)
     @discardableResult
     func strikethrough(style: [NSUnderlineStyle],
                        color: UIColor? = nil,
                        range: NSRange? = nil) -> AttributedStringWrapper {
-        rawValue.addAttributes([NSStrikethroughStyleAttributeName: style.reduce(0) { $0 | $1.rawValue }], range: range ?? allRange)
+        // iOS10.3 bugs: https://stackoverflow.com/questions/43070335/nsstrikethroughstyleattributename-how-to-strike-out-the-string-in-ios-10-3
+        rawValue.addAttributes([NSStrikethroughStyleAttributeName: style.reduce(0) { $0 | $1.rawValue }, NSBaselineOffsetAttributeName: 0], range: range ?? allRange)
         guard let color = color else { return self }
         rawValue.addAttributes([NSStrikethroughColorAttributeName: color], range: range ?? allRange)
         return self
@@ -97,7 +98,7 @@ public extension AttributedStringWrapper {
         rawValue.addAttributes([NSShadowAttributeName: shadow], range: range ?? allRange)
         return self
     }
-
+    
     /// NSObliquenessAttributeName 设置字形倾斜度,正值右倾，负值左倾
     @discardableResult
     func obliqueness(angle: CGFloat, range: NSRange? = nil) -> AttributedStringWrapper {
@@ -162,6 +163,25 @@ public extension AttributedStringWrapper {
         rawValue.addAttributes([NSVerticalGlyphFormAttributeName: value], range: range ?? allRange)
         return self
     }
+    
+    /// get height, Before this, you must set the height of the text firstly
+    func getHeight(by fixedWidth: CGFloat) -> CGFloat {
+        let h = rawValue.boundingRect(with: CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT)), options: [.usesFontLeading , .usesLineFragmentOrigin, .usesDeviceMetrics], context: nil).size.height
+        return ceil(h)
+    }
+    /// get width, Before this, you must set the height of the text firstly
+    func getWidth(by fixedHeight: CGFloat) -> CGFloat {
+        let w = rawValue.boundingRect(with: CGSize(width: CGFloat(MAXFLOAT), height: fixedHeight), options: [.usesFontLeading , .usesLineFragmentOrigin], context: nil).size.width
+        return ceil(w)
+    }
 }
+
+public func + (lf: AttributedStringWrapper, rf: AttributedStringWrapper) -> AttributedStringWrapper {
+    lf.rawValue.append(rf.rawValue)
+    return lf
+}
+
+
+
 
 

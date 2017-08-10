@@ -6,7 +6,7 @@ target 'CrashReport' do
   use_frameworks!
 
 
-pod 'LPExtensions', :git => 'git@bitbucket.org:loopeer/lpextensions.git', :commit => 'f6a7d0d'
+pod 'LPExtensions', :git => 'git@bitbucket.org:loopeer/lpextensions.git', :commit => '64e67be'
 pod 'SwiftyJSON', '~> 3.1.4'
 
 

@@ -126,12 +126,13 @@ class LPCrashReport {
         LPCrashReport.warnings.append(warning)
     }
     
+    /// 上传数据
     func uploadData() {
         guard LPCrashReport.reports.count != 0 else { return }
         
         
-        //let json = JSON(LPCrashReport.reports)
-        
+        let json = JSON(LPCrashReport.reports)
+        print(json)
         let param = ["kw": "爱", "pi": "1", "pz": "10"]
         
         Network.shared.request(method: .GET, urlStr: "http://v5.pc.duomi.com/search-ajaxsearch-searchall", parameter: param, success: { (result) in
@@ -141,7 +142,7 @@ class LPCrashReport {
             
             guard UIApplication.shared.applicationState == .background,
                   let last = LPCrashReport.reports.lastObject as? NSDictionary else{
-                LPCrashReport.reports.removeAllObjects()
+//                LPCrashReport.reports.removeAllObjects()
                 return
             }
             LPCrashReport.reports.removeAllObjects()

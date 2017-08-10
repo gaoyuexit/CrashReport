@@ -12,17 +12,19 @@ import SwiftyJSON
 
 struct AppInfo: CustomStringConvertible {
     
-    var version = String.projectVersion //eg: 2.0.0
-    var deviceID = UIDevice.current.identifierForVendor!.uuidString
+    var version = String.appInfo(.version) //eg: 2.0.0
+    var deviceID = String.appInfo(.uuid)
     var platform = UIDevice.current.lp.platformString() //eg: iphone 7plus
     var system = UIDevice.current.systemName + UIDevice.current.systemVersion //eg: iOS10.2.1
-    var appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") ?? ""
+    var appName = String.appInfo(.displayName)
+    var build = String.appInfo(.build)
+    var bundleID = String.appInfo(.bundleID)
     
     var description: String {
-        return "app: \(appName)\n" + "version: \(version)\n" + "deviceID: \(deviceID)\n" + "platform: \(platform)\n" + "system: \(system)"
+        return "app: \(appName)\n" + "version: \(version)\n" + "deviceID: \(deviceID)\n" + "platform: \(platform)\n" + "system: \(system)\n" + "build: \(build)\n" + "bundleID: \(bundleID)\n"
     }
     func encode() -> NSDictionary {
-        return ["version": version, "deviceID": deviceID, "platform": platform, "system": system, "appName": appName]
+        return ["version": version, "deviceID": deviceID, "platform": platform, "system": system, "appName": appName, "build": build, "bundleID": bundleID]
     }
 }
 

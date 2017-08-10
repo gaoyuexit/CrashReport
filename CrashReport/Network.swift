@@ -47,7 +47,7 @@ class Network {
         guard let request = encode(method: method, urlStr, parameters: parameter) else { return }
         session.dataTask(with: request) { (data, response, error) in
             let result = Result(data: data, response: response, error: error)
-            if let error = error {
+            if let _ = error {
                 fail(result)
             }else{
                 success(result)
