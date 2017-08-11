@@ -38,20 +38,14 @@ class Network {
     var headers = HTTPHeaders()
     var session = URLSession.shared
     
-    private init() {
-        
-    }
+    private init() { }
     
     func request(method: Method, urlStr: String, parameter: Parameters? = nil, success: @escaping SuccessHandler, fail: @escaping FailedHandler) {
         
         guard let request = encode(method: method, urlStr, parameters: parameter) else { return }
         session.dataTask(with: request) { (data, response, error) in
             let result = Result(data: data, response: response, error: error)
-            if let _ = error {
-                fail(result)
-            }else{
-                success(result)
-            }
+            error == nil ? success(result) : fail(result)
         }.resume()
     }
     
@@ -113,6 +107,7 @@ class Network {
         
         return components
     }
+    
     public func escape(_ string: String) -> String {
         let generalDelimitersToEncode = ":#[]@" // does not include "?" or "/" due to RFC 3986 - Section 3.4
         let subDelimitersToEncode = "!$&'()*+,;="

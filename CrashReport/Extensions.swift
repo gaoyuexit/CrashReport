@@ -40,6 +40,8 @@ extension String {
         let exist: Bool = FileManager.default.fileExists(atPath: self, isDirectory: &isDir)
         return exist && isDir.boolValue
     }
+    
+    static var since1970: String { return Date().timeIntervalSince1970.description }
 }
 
 func + <Key: Hashable, Value>(lfs: [Key: Value], rfs: [Key: Value]) -> [Key: Value] {

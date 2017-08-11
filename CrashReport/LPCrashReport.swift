@@ -21,7 +21,7 @@ func exceptionHandler(exception: NSException) {
                       name: exception.name.rawValue,
                       reason: exception.reason ?? "",
                       callStack: exception.callStackSymbols.joined(separator: "\r"),
-                      date: Date().timeIntervalSince1970.description)
+                      date: String.since1970)
     writeToLocal(crash)
 }
 
@@ -32,14 +32,14 @@ func handleSignal(signal: Int32) {
                       name: signal.signalName,
                       reason: signal.signalName,
                       callStack: Thread.callStackSymbols.joined(separator: "\r"),
-                      date: Date().timeIntervalSince1970.description)
+                      date: String.since1970)
     writeToLocal(crash)
 }
 
 func writeToLocal(_ crash: Crash?) {
     //如果一打开就崩溃了, 启动时间和终止时间相同
-    if LPCrashReport.time.start == nil { LPCrashReport.time.start = Date().timeIntervalSince1970.description }
-    LPCrashReport.time.end = Date().timeIntervalSince1970.description
+    if LPCrashReport.time.start == nil { LPCrashReport.time.start = String.since1970 }
+    LPCrashReport.time.end = String.since1970
     let report = Report(appInfo: AppInfo(), crash: crash, time: LPCrashReport.time, warnings: LPCrashReport.warnings)
     LPCrashReport.reports.add(report.decode())
     LPCrashReport.reports.write(toFile: LPCrashReport.crashPath, atomically: true)
@@ -107,7 +107,7 @@ class LPCrashReport {
         print("----- becomeActive ------")
         print(LPCrashReport.crashPath)
         
-        LPCrashReport.time.start = Date().timeIntervalSince1970.description
+        LPCrashReport.time.start = String.since1970
         readFromLocal()
         uploadData()
     }
@@ -120,7 +120,7 @@ class LPCrashReport {
     
     /// 接收到内存警告
     @objc func receiveMemoryWarning() {
-        let warning = MemoryWarning(date: Date().timeIntervalSince1970.description,
+        let warning = MemoryWarning(date: String.since1970,
                                     totalMemory: UIDevice.current.lp.totalMemory().description,
                                     useMemory: UIDevice.current.lp.userMemory().description)
         LPCrashReport.warnings.append(warning)
@@ -130,19 +130,14 @@ class LPCrashReport {
     func uploadData() {
         guard LPCrashReport.reports.count != 0 else { return }
         
-        
         let json = JSON(LPCrashReport.reports)
-        print(json)
-        let param = ["kw": "爱", "pi": "1", "pz": "10"]
+        let param = ["data": json.rawString() ?? ""]
         
-        Network.shared.request(method: .GET, urlStr: "http://v5.pc.duomi.com/search-ajaxsearch-searchall", parameter: param, success: { (result) in
-            //http://v5.pc.duomi.com/search-ajaxsearch-searchall?kw=爱&pi=1&pz=10
-            print(JSON(data: result.data!))
-            
+        Network.shared.request(method: .POST, urlStr: "http://120.92.117.234:80/api/v1/upload", parameter: param, success: { (result) in
             
             guard UIApplication.shared.applicationState == .background,
                   let last = LPCrashReport.reports.lastObject as? NSDictionary else{
-//                LPCrashReport.reports.removeAllObjects()
+                LPCrashReport.reports.removeAllObjects()
                 return
             }
             LPCrashReport.reports.removeAllObjects()
